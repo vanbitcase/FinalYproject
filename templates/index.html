@@ -109,21 +109,24 @@
     </div>
 
     <script>
-        document.querySelector(".chatbot-input-container").addEventListener("submit", function(event) {
+        document.getElementById("chatForm").addEventListener("submit", function(event) {
             event.preventDefault();
-    
+
             let userMessage = document.getElementById("messageInput").value.trim();
             if (!userMessage) return;
-    
+
             let chatMessages = document.getElementById("chatMessages");
-    
+
+            // Append user message
             let userMsgElement = document.createElement("div");
             userMsgElement.className = "message user-message";
             userMsgElement.textContent = userMessage;
             chatMessages.appendChild(userMsgElement);
-    
+
+            // Clear input field
             document.getElementById("messageInput").value = "";
-    
+
+            // Send message to Flask server
             fetch("/send", {
                 method: "POST",
                 body: new URLSearchParams({ "message": userMessage }),
@@ -135,12 +138,14 @@
                 botMsgElement.className = "message bot-message";
                 botMsgElement.textContent = data.response;
                 chatMessages.appendChild(botMsgElement);
-    
+
+                // Auto-scroll to the latest message
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => {
+                console.error("Error:", error);
+            });
         });
     </script>
-    
 </body>
 </html>
