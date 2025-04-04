@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 import requests
 import json
+import os
 
 app = Flask(__name__)
 
-GROQ_API_KEY = "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"  # Replace with your key
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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")  # Use environment variable if available
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL_NAME = "llama-3.3-70b-versatile"
 
@@ -40,6 +41,9 @@ def send():
         bot_response = "Unexpected response format from API."
     print(bot_response)
     return jsonify({"response": bot_response})
+
+# This is important for Vercel
+app = app.wsgi_app
 
 if __name__ == "__main__":
     app.run(debug=True)
