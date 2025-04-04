@@ -1,25 +1,28 @@
 from flask import Flask, render_template, request, jsonify
 import requests
-import os
+import json
 
-app = Flask(__name__, template_folder="../templates")
+app = Flask(__name__)
 
-GROQ_API_KEY = "YOUR_GROQ_API_KEY"
+GROQ_API_KEY = "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"  # Replace with your key
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL_NAME = "llama-3.3-70b-versatile"
 
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": f"Bearer {GROQ_API_KEY}"
+}
+
 @app.route("/")
-def home():
+def index():
     return render_template("index.html")
 
 @app.route("/send", methods=["POST"])
-def chat():
-    user_message = request.form["message"]
+def send():
+    user_message = request.form.get("message", "")
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {GROQ_API_KEY}"
-    }
+    if not user_message:
+        return jsonify({"response": "Please enter a message."})
 
     payload = {
         "model": MODEL_NAME,
@@ -30,12 +33,13 @@ def chat():
         response = requests.post(GROQ_API_URL, headers=headers, json=payload)
         response.raise_for_status()
         data = response.json()
-        bot_response = data['choices'][0]['message']['content']
-
-        return jsonify({"response": bot_response})
-    
-    except Exception as e:
-        return jsonify({"response": "Error processing your request."})
+        bot_response = data.get("choices", [{}])[0].get("message", {}).get("content", "Error getting response.")
+    except requests.exceptions.RequestException as e:
+        bot_response = f"API Error: {e}"
+    except KeyError:
+        bot_response = "Unexpected response format from API."
+    print(bot_response)
+    return jsonify({"response": bot_response})
 
 if __name__ == "__main__":
     app.run(debug=True)
