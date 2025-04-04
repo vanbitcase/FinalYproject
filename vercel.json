@@ -1,10 +1,20 @@
 {
-    "version": 2,
-    "builds": [
-      { "src": "api/main.py", "use": "@vercel/python" }
-    ],
-    "routes": [
-      { "src": "/(.*)", "dest": "/api/main.py" }
-    ]
-  }
-  
+  "version": 2,
+  "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/send",
+      "methods": ["POST"],
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/",
+      "dest": "templates/index.html"
+    }
+  ]
+}
